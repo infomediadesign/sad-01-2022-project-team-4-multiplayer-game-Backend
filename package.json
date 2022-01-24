@@ -1,0 +1,27 @@
+{
+  "name": "sad-01-2022-project-team-4-multiplayer-game-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/infomediadesign/sad-01-2022-project-team-4-multiplayer-game-Backend.git"
+  },
+  "author": "Team 4",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/infomediadesign/sad-01-2022-project-team-4-multiplayer-game-Backend/issues"
+  },
+  "homepage": "https://github.com/infomediadesign/sad-01-2022-project-team-4-multiplayer-game-Backend#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
