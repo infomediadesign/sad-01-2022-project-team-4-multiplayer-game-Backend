@@ -34,10 +34,12 @@ function SetupSocketEvents(socket, currentPlayerID) {
 
     socket.conn.on('packet', function (packet) {
         if (packet.type === 'ping') console.log('received ping');
+        if (packet.type === '[ong') console.log('received pong');
     });
 
     socket.conn.on('packetCreate', function (packet) {
         if (packet.type === 'pong') console.log('sending pong');
+        if (packet.type === 'ping') console.log('sending ping');
     });
 
     socket.on('chat', (msg) =>
@@ -48,6 +50,7 @@ function SetupSocketEvents(socket, currentPlayerID) {
     {
         sockets.delete(currentPlayerID);
         players.delete(currentPlayerID);
+        socket.broadcast.emit('playerDisconnected', currentPlayerID);
         console.log('user disconnected');
     });
 
@@ -55,15 +58,18 @@ function SetupSocketEvents(socket, currentPlayerID) {
         players.get(currentPlayerID).userName = playerName;
         console.log('Player name of ' + currentPlayerID + ' updated to ' + playerName);
         socket.emit('init', currentPlayerID);
+        console.log('Init Player');
 
         //Spawn for self
-        //Send info of all players
+        //Send info to this client of all players
         for (var entry of players.entries()) {
             socket.emit('spawnPlayer', entry[1]);
+            console.log('spawnPlayer sending to ' + players.get(currentPlayerID).userName + ' to spawn ' + entry[1].userName);
         }
 
         //Spawn for others
         //Send my info to other players
-        socket.broadcast.emit('spawnPlayer', players[currentPlayerID]);
+        socket.broadcast.emit('spawnPlayer', players.get(currentPlayerID));
+        console.log('spawnPlayer sending to All to spawn ' + players.get(currentPlayerID).userName)
     });
 }
