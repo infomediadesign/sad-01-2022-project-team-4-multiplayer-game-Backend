@@ -1,11 +1,11 @@
-const Player = require('./player');
+const Player = require('./Player');
 const { nanoid } = require('nanoid');
 const Position = require('./Position');
 
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, { 'pingInterval': 10000, 'pingTimeout': 25000 });
-const PORT= 3000 || process.env.PORT
+const PORT= process.env.PORT || 3000;
 
 app.get('/', (req, res) =>
 {
@@ -14,7 +14,7 @@ app.get('/', (req, res) =>
 
 http.listen(PORT, () =>
 {
-    console.log('Connected at 3000');
+    console.log('Connected at ' + PORT);
 });
 
 var sockets = new Map();
