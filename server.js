@@ -101,6 +101,10 @@ function SetupSocketEvents_New(socket, currentPlayerID){
         currentPlayer.position.y = posY;
         currentPlayer.position.z = posZ;
     });
+
+    socket.on('chat', (msg) => {
+        console.log('Message from client ' + msg);
+    })
 }
 
 function SpawnPlayerSocketEvent(socket, currentPlayerID, roomID){
