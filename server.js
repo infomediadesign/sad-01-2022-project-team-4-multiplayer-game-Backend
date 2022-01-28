@@ -5,7 +5,7 @@ const Position = require('./Position');
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, { 'pingInterval': 10000, 'pingTimeout': 25000 });
-const PORT= process.env.PORT || 3000;
+const PORT= 7779;
 
 app.get('/', (req, res) =>
 {
