@@ -1,6 +1,7 @@
 const Player = require('./Player');
 const { nanoid } = require('nanoid');
 const Position = require('./Position');
+const GameRoom = require('./GameRoom');
 
 const app = require('express')();
 const http = require('http').createServer(app);
@@ -20,8 +21,111 @@ http.listen(PORT, () =>
 var sockets = new Map();
 var players = new Map();
 var roomToSocketsMap = new Map();
+var gameRooms = new Map();
 
-io.on('connection', OnConnection_New);
+io.on('connection', socket => {
+    console.log("Connection Recieved from " + socket.id);
+    var player = new Player();
+    var currentPlayerID = player.id;
+    players.set(currentPlayerID, player);
+    console.log("Player ID for connection " + socket.id + " is " + currentPlayerID);
+    socket.emit('init', currentPlayerID);
+
+    socket.on('disconnect', () => {
+        //If this Player was in some room, remove the player from the room.
+        for (let [key, value] of gameRooms.entries()) {
+            if (value.players.get(currentPlayerID))
+            {
+                value.players.delete(currentPlayerID);
+                socket.to(key).emit('playerDisconnected', currentPlayerID);
+                if(value.players.size == 0){
+                    value.EndSimulate();
+                }
+            }
+
+            if (value.sockets.get(currentPlayerID))
+            {
+                value.sockets.delete(currentPlayerID);
+            }
+        }
+        players.delete(currentPlayerID);
+        //TODO : I think we need to get rid of the event too by making this event into a function (But not sure)
+        //socket.off('updatePlayerPosition');
+        console.log("Player with player ID " + currentPlayerID + " and Name " + player.userName + " is disconnected");
+    });
+
+    socket.on('setPlayerName', playerName => {
+        player.userName = playerName;
+        console.log("Player name for Player ID " + currentPlayerID + " has been updated to " + player.userName);
+    });
+
+    socket.on('hostRoom', () => {
+        var gameRoom = new GameRoom();
+        gameRoom.players.set(currentPlayerID, player);
+        gameRoom.sockets.set(currentPlayerID, socket);
+        gameRooms.set(gameRoom.roomName, gameRoom);
+
+        socket.join(gameRoom.roomName);
+        socket.emit('roomJoined', gameRoom.roomName);
+        socket.emit('spawnPlayer', player);
+        gameRoom.StartSimulate();
+        socket.on('updatePlayerPosition', (x, y, z) =>{
+            if(player){
+                player.position.x = x;
+                player.position.y = y;
+                player.position.z = z;
+                // console.log("Updated Player Position of " + player.userName +
+                //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
+            }
+        });
+    });
+
+    socket.on('joinRoom', roomName => {
+
+        var gameRoom = gameRooms.get(roomName);
+        if(gameRoom && gameRoom.players){
+            gameRoom.players.set(currentPlayerID, player);
+            gameRoom.sockets.set(currentPlayerID, socket);
+    
+            socket.join(gameRoom.roomName);
+            socket.emit('roomJoined', gameRoom.roomName);
+
+            //Let this Client Spawn already joined people
+            for (let [key, value] of gameRoom.players.entries()){
+                socket.emit('spawnPlayer', value);
+            }
+
+            //Let other people in the room know about this client
+            socket.to(roomName).emit('spawnPlayer', player);
+            socket.on('updatePlayerPosition', (x, y, z) =>{
+                if(player){
+                    player.position.x = x;
+                    player.position.y = y;
+                    player.position.z = z;
+                    // console.log("Updated Player Position of " + player.userName +
+                    //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
+                }
+            });
+        }
+        else{
+            console.log("Oops, Cannot Find room with Room Name " + roomName);
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function OnConnection_New(socket){
     var player = new Player();
