@@ -6,5 +6,11 @@ module.exports = class Player{
         this.id = nanoid();
         this.userName = 'Game Player';
         this.position = new Position();
+        this.modelIndex = this.randomIntFromInterval(0, 18);
+        console.log("Model Index " + this.modelIndex);
     }
+
+    randomIntFromInterval(min, max) { // min and max included 
+        return Math.floor(Math.random() * (max - min + 1) + min)
+      }
 }

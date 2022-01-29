@@ -126,7 +126,6 @@ io.on('connection', socket => {
 
 
 
-
 function OnConnection_New(socket){
     var player = new Player();
     var currentPlayerID = player.id;
