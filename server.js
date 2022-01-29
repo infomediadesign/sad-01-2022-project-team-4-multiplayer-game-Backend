@@ -37,7 +37,7 @@ io.on('connection', socket => {
             if (value.players.get(currentPlayerID))
             {
                 value.players.delete(currentPlayerID);
-                socket.to(key).emit('playerDisconnected', currentPlayerID);
+                socket.to(key).emit('removePlayer', currentPlayerID);
                 if(value.players.size == 0){
                     value.EndSimulate();
                 }
@@ -67,7 +67,7 @@ io.on('connection', socket => {
 
         socket.join(gameRoom.roomName);
         socket.emit('roomJoined', gameRoom.roomName);
-        socket.emit('spawnPlayer', player);
+        socket.emit('addPlayer', player);
         gameRoom.StartSimulate();
         socket.on('updatePlayerPosition', (x, y, z) =>{
             if(player){
@@ -92,11 +92,11 @@ io.on('connection', socket => {
 
             //Let this Client Spawn already joined people
             for (let [key, value] of gameRoom.players.entries()){
-                socket.emit('spawnPlayer', value);
+                socket.emit('addPlayer', value);
             }
 
             //Let other people in the room know about this client
-            socket.to(roomName).emit('spawnPlayer', player);
+            socket.to(roomName).emit('addPlayer', player);
             socket.on('updatePlayerPosition', (x, y, z) =>{
                 if(player){
                     player.position.x = x;
