@@ -108,6 +108,7 @@ io.on('connection', socket => {
             });
         }
         else{
+            socket.emit('unableToJoinRoom', "Cannot Find room with Room Name " + roomName);
             console.log("Oops, Cannot Find room with Room Name " + roomName);
         }
     });
