@@ -78,6 +78,10 @@ io.on('connection', socket => {
                 //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
             }
         });
+        socket.on('chatMessage', chatMessage => {
+
+            io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
+        });
     });
 
     socket.on('joinRoom', roomName => {
@@ -96,7 +100,7 @@ io.on('connection', socket => {
             }
 
             //Let other people in the room know about this client
-            socket.to(roomName).emit('addPlayer', player);
+            socket.to(gameRoom.roomName).emit('addPlayer', player);
             socket.on('updatePlayerPosition', (x, y, z) =>{
                 if(player){
                     player.position.x = x;
@@ -105,6 +109,10 @@ io.on('connection', socket => {
                     // console.log("Updated Player Position of " + player.userName +
                     //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
                 }
+            });
+            socket.on('chatMessage', chatMessage => {
+
+                io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
             });
         }
         else{
