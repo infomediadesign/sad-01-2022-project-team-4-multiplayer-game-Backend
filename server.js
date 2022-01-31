@@ -79,6 +79,17 @@ io.on('connection', socket => {
                 //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
             }
         });
+
+        socket.on('updatePlayerRotation', (x, y, z) =>{
+            if(player){
+                player.rotation.x = x;
+                player.rotation.y = y;
+                player.rotation.z = z;
+                // console.log("Updated Player Position of " + player.userName +
+                //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
+            }
+        });
+        
         socket.on('chatMessage', chatMessage => {
 
             io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
@@ -120,6 +131,16 @@ io.on('connection', socket => {
                         player.position.x = x;
                         player.position.y = y;
                         player.position.z = z;
+                        // console.log("Updated Player Position of " + player.userName +
+                        //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
+                    }
+                });
+
+                socket.on('updatePlayerRotation', (x, y, z) =>{
+                    if(player){
+                        player.rotation.x = x;
+                        player.rotation.y = y;
+                        player.rotation.z = z;
                         // console.log("Updated Player Position of " + player.userName +
                         //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
                     }

@@ -6,6 +6,7 @@ module.exports = class Player{
         this.id = nanoid();
         this.userName = 'Game Player';
         this.position = new Position();
+        this.rotation = new Position();
         this.modelIndex = this.randomIntFromInterval(0, 18);
         console.log("Model Index " + this.modelIndex);
     }
