@@ -8,6 +8,7 @@ module.exports = class Player{
         this.position = new Position();
         this.rotation = new Position();
         this.modelIndex = this.randomIntFromInterval(0, 18);
+        this.tasksFinished = 0;
         console.log("Model Index " + this.modelIndex);
     }
 

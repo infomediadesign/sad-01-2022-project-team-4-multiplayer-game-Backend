@@ -96,6 +96,28 @@ io.on('connection', socket => {
 
             io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
         });
+
+        if(gameRoom.players.size == gameRoom.maxAllowedPlayers){
+            //Start Room 
+            gameRoom.isStarted = true;
+            io.in(gameRoom.roomName).emit('gameStarting');
+            setTimeout(
+                function() {
+                    io.in(gameRoom.roomName).emit('gameStarted');
+                    //Let this Client Spawn already joined people
+                    for (let [key, value] of gameRoom.sockets.entries()){
+                        value.on('taskFinished', () => {
+                            var curPlayer = gameRoom.players.get(key);
+                            if(curPlayer){
+                                curPlayer.tasksFinished++;
+                                if(curPlayer.tasksFinished == 2){
+                                    io.in(gameRoom.roomName).emit('gameOver', key);
+                                }
+                            }
+                        })
+                    }
+                }, 10000);
+        }
     });
 
     socket.on('joinRoom', roomName => {
@@ -153,6 +175,28 @@ io.on('connection', socket => {
     
                     io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
                 });
+
+                if(gameRoom.players.size == gameRoom.maxAllowedPlayers){
+                    //Start Room 
+                    gameRoom.isStarted = true;
+                    io.in(gameRoom.roomName).emit('gameStarting');
+                    setTimeout(
+                        function() {
+                            io.in(gameRoom.roomName).emit('gameStarted');
+                            //Let this Client Spawn already joined people
+                            for (let [key, value] of gameRoom.sockets.entries()){
+                                value.on('taskFinished', () => {
+                                    var curPlayer = gameRoom.players.get(key);
+                                    if(curPlayer){
+                                        curPlayer.tasksFinished++;
+                                        if(curPlayer.tasksFinished == 2){
+                                            io.in(gameRoom.roomName).emit('gameOver', key);
+                                        }
+                                    }
+                                })
+                            }
+                        }, 10000);
+                }
             }
         }
 
