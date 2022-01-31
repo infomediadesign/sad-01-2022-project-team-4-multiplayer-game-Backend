@@ -67,7 +67,9 @@ io.on('connection', socket => {
         gameRooms.set(gameRoom.roomName, gameRoom);
 
         socket.join(gameRoom.roomName);
-        socket.emit('roomJoined', gameRoom.roomName);
+        socket.emit('roomJoined', {roomName: gameRoom.roomName, 
+            playersInRoom: gameRoom.players.size, 
+            maxAllowedPlayers: gameRoom.maxAllowedPlayers});
         socket.emit('addPlayer', player);
         gameRoom.StartSimulate();
         socket.on('updatePlayerPosition', (x, y, z) =>{
@@ -89,7 +91,7 @@ io.on('connection', socket => {
                 //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
             }
         });
-        
+
         socket.on('chatMessage', chatMessage => {
 
             io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
@@ -117,7 +119,9 @@ io.on('connection', socket => {
                 gameRoom.sockets.set(currentPlayerID, socket);
         
                 socket.join(gameRoom.roomName);
-                socket.emit('roomJoined', gameRoom.roomName);
+                socket.emit('roomJoined', {roomName: gameRoom.roomName, 
+                    playersInRoom: gameRoom.players.size, 
+                    maxAllowedPlayers: gameRoom.maxAllowedPlayers});
     
                 //Let this Client Spawn already joined people
                 for (let [key, value] of gameRoom.players.entries()){
