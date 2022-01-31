@@ -59,10 +59,11 @@ io.on('connection', socket => {
         console.log("Player name for Player ID " + currentPlayerID + " has been updated to " + player.userName);
     });
 
-    socket.on('hostRoom', () => {
+    socket.on('hostRoom', maxPlayerCount => {
         var gameRoom = new GameRoom();
         gameRoom.players.set(currentPlayerID, player);
         gameRoom.sockets.set(currentPlayerID, socket);
+        gameRoom.maxAllowedPlayers = maxPlayerCount;
         gameRooms.set(gameRoom.roomName, gameRoom);
 
         socket.join(gameRoom.roomName);
@@ -87,34 +88,49 @@ io.on('connection', socket => {
     socket.on('joinRoom', roomName => {
 
         var gameRoom = gameRooms.get(roomName);
-        if(gameRoom && gameRoom.players){
-            gameRoom.players.set(currentPlayerID, player);
-            gameRoom.sockets.set(currentPlayerID, socket);
-    
-            socket.join(gameRoom.roomName);
-            socket.emit('roomJoined', gameRoom.roomName);
-
-            //Let this Client Spawn already joined people
-            for (let [key, value] of gameRoom.players.entries()){
-                socket.emit('addPlayer', value);
+        if(gameRoom){
+            if(gameRoom.maxAllowedPlayers == gameRoom.players.size){
+                socket.emit('unableToJoinRoom', "Room Full! " + roomName);
+                console.log("Oops, Room Full! " + roomName);
+                return;
             }
 
-            //Let other people in the room know about this client
-            socket.to(gameRoom.roomName).emit('addPlayer', player);
-            socket.on('updatePlayerPosition', (x, y, z) =>{
-                if(player){
-                    player.position.x = x;
-                    player.position.y = y;
-                    player.position.z = z;
-                    // console.log("Updated Player Position of " + player.userName +
-                    //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
-                }
-            });
-            socket.on('chatMessage', chatMessage => {
+            if(gameRoom.isStarted){
+                socket.emit('unableToJoinRoom', "Game In Progress!" + roomName);
+                console.log("Oops, Game In Progress! " + roomName);
+                return;
+            }
 
-                io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
-            });
+            if(gameRoom.players){
+                gameRoom.players.set(currentPlayerID, player);
+                gameRoom.sockets.set(currentPlayerID, socket);
+        
+                socket.join(gameRoom.roomName);
+                socket.emit('roomJoined', gameRoom.roomName);
+    
+                //Let this Client Spawn already joined people
+                for (let [key, value] of gameRoom.players.entries()){
+                    socket.emit('addPlayer', value);
+                }
+    
+                //Let other people in the room know about this client
+                socket.to(gameRoom.roomName).emit('addPlayer', player);
+                socket.on('updatePlayerPosition', (x, y, z) =>{
+                    if(player){
+                        player.position.x = x;
+                        player.position.y = y;
+                        player.position.z = z;
+                        // console.log("Updated Player Position of " + player.userName +
+                        //  " to " + player.position.x + "," + player.position.y + "," + player.position.z);
+                    }
+                });
+                socket.on('chatMessage', chatMessage => {
+    
+                    io.in(gameRoom.roomName).emit('newChatMessageFromServer', {playerID: currentPlayerID, message: chatMessage});
+                });
+            }
         }
+
         else{
             socket.emit('unableToJoinRoom', "Cannot Find room with Room Name " + roomName);
             console.log("Oops, Cannot Find room with Room Name " + roomName);

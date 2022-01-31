@@ -3,6 +3,7 @@ module.exports = class GameRoom{
     constructor() {
         this.roomName = nanoid(4);
         this.isStarted = false;
+        this.maxAllowedPlayers = 10;
         this.players = new Map();
         this.sockets = new Map();
         this.simulationLoop = null;
