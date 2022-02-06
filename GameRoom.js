@@ -1,5 +1,6 @@
 const { nanoid } = require('nanoid');
 module.exports = class GameRoom{
+
     constructor() {
         this.roomName = nanoid(4);
         this.isStarted = false;
@@ -7,11 +8,8 @@ module.exports = class GameRoom{
         this.players = new Map();
         this.sockets = new Map();
         this.simulationLoop = null;
-    }
-
-    StartSimulate(){
-        console.log("Room " + this.roomName + " Simulation Started");
-        this.simulationLoop = setInterval(() => {
+        this.Simulater = ()=>{
+            console.log("Test")
             //console.log("Simulation Running for Room " + this.roomName + " with " + this.players.size + " Players");
             for (let [key1, value1] of this.players.entries()){
                 var curSocket = this.sockets.get(key1);
@@ -24,8 +22,17 @@ module.exports = class GameRoom{
                     }
                 }
             }
-        }, 33);
+        }
     }
+
+    
+
+    StartSimulate(){
+        console.log("Room " + this.roomName + " Simulation Started");
+        this.simulationLoop = setInterval(this.Simulater, 33);
+    }
+
+    
 
     EndSimulate(){
         console.log("Room " + this.roomName + " Simulation Ended");
