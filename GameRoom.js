@@ -9,7 +9,6 @@ module.exports = class GameRoom{
         this.sockets = new Map();
         this.simulationLoop = null;
         this.Simulater = ()=>{
-            console.log("Test")
             //console.log("Simulation Running for Room " + this.roomName + " with " + this.players.size + " Players");
             for (let [key1, value1] of this.players.entries()){
                 var curSocket = this.sockets.get(key1);
